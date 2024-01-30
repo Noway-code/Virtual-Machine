@@ -9,9 +9,9 @@ int SP = 500;
 int PC = 0; 
 
 // Instruction
-struct mystruct 
+typedef  mystruct 
 {
-  int Op;
+  int OP;
   int L;
   int M;
 }
