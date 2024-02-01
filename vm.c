@@ -75,9 +75,9 @@ int main(int argc, char *argv[]) {
   printf("\t\t\tPC\tBP\tSP\tstack\n");
   printf("Initial values:\t\t0\t499\t500\n\n");
 
-  int flag = 0;
+  int halt = 0;
   char *opCode;
-  while (flag == 0) // SYS M=3 (HALT).. doesnt cover all cases
+  while (halt == 0) // SYS M=3 (HALT).. doesnt cover all cases
   {
       IR.OP = pas[PC];
       IR.L = pas[PC + 1];
@@ -134,21 +134,27 @@ int main(int argc, char *argv[]) {
       break;
     case 9: // SYS
       switch (IR.M) {
-      case 1: // WRITE
+      case 1: // WRITE, SIN
 		SP = SP + 1;
+		printf("Output Result is: %d\n", pas[SP]);
+		opCode = "SIN";
         break;
-      case 2: // READ
+      case 2: // READ, SOU
         printf("Enter an integer: ");
         scanf("%d", &pas[SP]);
+		SP = SP - 1;
+		opCode = "SOU";
         break;
-      case 3: // HALT
-        flag = 1;
+      case 3: // HALT, EOP (End of Program)
+        halt = 1;
+		opCode = "EOP";
         break;
       }
       break;
     default:
       printf("Error: Invalid operation code.\n");
       fclose(inFile);
+
       return 1;
     }
 
