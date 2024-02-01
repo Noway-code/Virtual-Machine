@@ -35,14 +35,14 @@ int base(int BP, int L)
 	return arb;
 }
 
-int execute(myStruct IR, char *opCode, int *pInt)
+int execute(myStruct IR, char **opCode)
 {
 	switch (IR.OP)
 	{
 		case 1:           // LIT (literal)
 			SP = SP - 1;
 			pas[SP] = IR.M; // pushes value M onto the stack
-			opCode = "LIT";
+			*opCode = "LIT";
 			break;
 		case 2: // OPR (return/operator)(will do later)
 			SP = BP + 1;
@@ -55,67 +55,67 @@ int execute(myStruct IR, char *opCode, int *pInt)
 				case 1: // ADD
 					pas[SP+1] = pas[SP+1] + pas[SP];
 					SP = SP + 1;
-					opCode = "ADD";
+					*opCode = "ADD";
 					break;
 
 				case 2: // SUB
 					pas[SP+1] = pas[SP+1] - pas[SP];
 					SP = SP + 1;
-					opCode = "SUB";
+					*opCode = "SUB";
 					break;
 
 				case 3: // MUL
 					pas[SP+1] = pas[SP+1] * pas[SP];
 					SP = SP + 1;
-					opCode = "MUL";
+					*opCode = "MUL";
 					break;
 
 				case 4: // DIV
 					pas[SP+1] = pas[SP+1] / pas[SP];
 					SP = SP + 1;
-					opCode = "DIV";
+					*opCode = "DIV";
 					break;
 
 				case 5: // EQL
 					pas[SP+1] = pas[SP+1] == pas[SP];
 					SP = SP + 1;
-					opCode = "EQL";
+					*opCode = "EQL";
 					break;
 
 				case 6: // NEQ
 					pas[SP+1] = pas[SP+1] != pas[SP];
 					SP = SP + 1;
-					opCode = "NEQ";
+					*opCode = "NEQ";
 					break;
 
 				case 7: // LSS
 					pas[SP+1] = pas[SP+1] < pas[SP];
 					SP = SP + 1;
-					opCode = "LSS";
+					*opCode = "LSS";
 					break;
 
 				case 8: // LEQ
 					pas[SP+1] = pas[SP+1] <= pas[SP];
 					SP = SP + 1;
-					opCode = "LEQ";
+					*opCode = "LEQ";
 					break;
 
 				case 9: // GTR
 
 					pas[SP+1] = pas[SP+1] > pas[SP];
 					SP = SP + 1;
-					opCode = "GTR";
+					*opCode = "GTR";
 					break;
 
 				case 10: // GEQ
 					pas[SP+1] = pas[SP+1] >= pas[SP];
 					SP = SP + 1;
-					opCode = "GEQ";
+					*opCode = "GEQ";
 					break;
 
 				case 11: // ODD
 					pas[SP] = pas[SP] % 2;
-					opCode = "ODD";
+					*opCode = "ODD";
 					break;
 
 			}
@@ -124,13 +124,13 @@ int execute(myStruct IR, char *opCode, int *pInt)
 		case 3: // LOD (load)
 			SP = SP - 1;
 			pas[SP] = pas[base(BP, IR.L) - IR.M]; // review
-			opCode = "LOD";
+			*opCode = "LOD";
 			break;
 		case 4: // STO (store)
 			pas[base(BP, IR.L) - IR.M] = pas[SP]; // loads the value in the stack location at offset M from the
 			// stack pointer (SP) into the data memory
 			SP = SP + 1; // increment stack pointer, one less AR
-			opCode = "STO";
+			*opCode = "STO";
 			break;
 		case 5:                         // CAL (Call procedure)
 			pas[SP - 1] = base(BP, IR.L); // static link
@@ -138,15 +138,15 @@ int execute(myStruct IR, char *opCode, int *pInt)
 			pas[SP - 3] = PC;             // return address
 			BP = SP - 1;
 			PC = IR.M;
-			opCode = "CAL";
+			*opCode = "CAL";
 			break;
 		case 6: // INC (Allocates m slots on the stack)
 			SP = SP - IR.M;
-			opCode = "INC";
+			*opCode = "INC";
 			break;
 		case 7: // JMP (Jumps to a new instruction)
 			PC = IR.M;
-			opCode = "JMP";
+			*opCode = "JMP";
 			break;
 		case 8: // JPC (Jumps conditionally); review
 			if (SP == 0)
@@ -154,7 +154,7 @@ int execute(myStruct IR, char *opCode, int *pInt)
 				PC = IR.M;
 				SP = SP + 1;
 			}
-			opCode = "JPC";
+			*opCode = "JPC";
 			break;
 		case 9: // SYS
 			switch (IR.M)
@@ -162,21 +162,22 @@ int execute(myStruct IR, char *opCode, int *pInt)
 				case 1: // WRITE, SIN
 					SP = SP + 1;
 					printf("Output Result is: %d\n", pas[SP]);
-					opCode = "SIN";
+					*opCode = "SIN";
 					break;
 				case 2: // READ, SOU
 					printf("Enter an integer: ");
 					scanf("%d", &pas[SP]);
 					SP = SP - 1;
-					opCode = "SOU";
+					*opCode = "SOU";
 					break;
 				case 3: // HALT, EOP (End of Program)
-					opCode = "EOP";
+					*opCode = "EOP";
 					return 1;
 			}
 			break;
 		default:
 			printf("Error: Invalid operation code.\n");
+
 			return 1;
 	}
 	return 0;
@@ -248,7 +249,7 @@ int main(int argc, char *argv[])
 		PC = PC + 3;
 
 		//Execute
-		halt = execute(IR, opCode, &halt);
+		halt = execute(IR, &opCode);
 
 		//Print
 		printf("%-10s%-4d%-4d%-4d%-4d%-4d\t", opCode, IR.L, IR.M, PC, BP, SP);
@@ -273,7 +274,5 @@ int main(int argc, char *argv[])
 
 		printf("\n");
 	}
-	fclose(inFile);
-	return 0;
 }
 
