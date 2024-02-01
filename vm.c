@@ -77,6 +77,7 @@ int main(int argc, char *argv[]) { // impliment command line arguments
     printf("Error: File is empty.\n");
     return 1;
   }
+
   printf("\n");
   printf("Initial values: \n");
 
@@ -84,33 +85,39 @@ int main(int argc, char *argv[]) { // impliment command line arguments
   printf("Initial values:\t0\t499\t500\n");
 
   int flag = 0; // for exiting while loop
+  char *opCode;
   while (flag == 0) // SYS M=3 (HALT).. doesnt cover all cases
   {
       IR.OP = pas[PC];
       IR.L = pas[PC + 1];
       IR.M  = pas[PC + 2];
       PC = PC + 3;
+	  opCode = "";
 
     // Switch case for different operations
-    switch (Operation) {
+    switch (IR.OP) {
     case 1:           // LIT (literal)
       SP = SP - 1;    // decrement stack pointer
       pas[SP] = IR.M; // pushes value M onto the stack
+	  opCode = "LIT";
       break;
     case 2: // OPR (return/operator)(will do later)
       SP = BP + 1;
       BP = pas[SP - 2];
       PC = pas[SP - 3];
+	  opCode = "OPR";
       break;
     case 3: // LOD (load)
       SP = SP - 1;
       pas[SP] = pas[base(BP, IR.L) - IR.M]; // review
+	  opCode = "LOD";
       break;
     case 4: // STO (store)
       pas[base(BP, IR.L) - IR.M] =
           pas[SP]; // loads the value in the stack location at offset M from the
                    // stack pointer (SP) into the data memory
       SP = SP + 1; // increment stack pointer, one less AR
+	  opCode = "STO";
       break;
     case 5:                         // CAL (Call procedure)
       pas[SP - 1] = base(BP, IR.L); // static link
@@ -118,26 +125,31 @@ int main(int argc, char *argv[]) { // impliment command line arguments
       pas[SP - 3] = PC;             // return address
       BP = SP - 1;
       PC = IR.M;
+	  opCode = "CAL";
       break;
     case 6: // INC (Allocates m slots on the stack)
       SP = SP - IR.M;
+	  opCode = "INC";
       break;
     case 7: // JMP (Jumps to a new instruction)
       PC = IR.M;
+	  opCode = "JMP";
       break;
     case 8: // JPC (Jumps conditionally); review
       if (SP == 0) {
         PC = IR.M;
         SP = SP + 1;
       }
+	  opCode = "JPC";
       break;
     case 9: // SYS
       switch (IR.M) {
       case 1: // WRITE
-        printf("Top of Stack Value: %d\n", pas[SP]);
+        //printf("Top of Stack Value: %d\n", pas[SP]);
+		SP = SP + 1;
         break;
       case 2: // READ
-        printf("Enter an integer");
+        printf("Enter an integer: ");
         scanf("%d", &pas[SP]);
         break;
       case 3: // HALT
@@ -151,5 +163,7 @@ int main(int argc, char *argv[]) { // impliment command line arguments
       fclose(inFile);
       return 1;
     }
+	printf("%s\t%d\t%d\t%d\n", opCode, IR.L, IR.M, PC);
+
   }
 } // Code looks good
