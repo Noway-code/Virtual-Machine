@@ -66,9 +66,8 @@ int main(int argc, char *argv[])
 
 	printf("\n");
 	// Print initial values
-	printf("\t\t\t\t\tPC\tBP\tSP\tstack\n");
-	printf("Initial values:\t\t0\t%d\t%d\n\n", BP, SP);
-
+	printf("\t\t  %-4s%-4s%-4s  %-8s\n", "PC", "BP", "SP", "stack");
+	printf("Initial values:\t  %-4d%-4d%-4d\n\n", 0, BP, SP);
 	int halt = 0;
 	char opCode[10]; // String to store the operation code
 
@@ -274,9 +273,10 @@ int main(int argc, char *argv[])
 				printf("| ");
 				k++;
 			}
-			printf("%d ", pas[i]);
+			printf("%-4d", pas[i]);
 		}
 
 		printf("\n");
+
 	}
 }
